@@ -24,6 +24,10 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	void GetCursorHit(FHitResult Hit);
+	void GetCursorHitAndCollectResource(FHitResult Hit);
+	void RouteCursorHit(FHitResult Hit);
 private:
 	void BeginSpawn();
 
@@ -45,7 +49,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USceneComponent* Slot2Spawn;
-	
+
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Slot3;
 
@@ -63,7 +67,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<APResourceSpawnable> CopperClass;
-	
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<APResourceSpawnable> BronzeClass;
 
@@ -83,4 +87,9 @@ private:
 	bool HasRevealed = false;
 
 	FTimerHandle SpawnDelayTimerHandle;
+	FTimerHandle ShowUnpickedDelayTimerHandle;
+
+	void ToggleBackSlots();
+
+	int32 PickedOption;
 };

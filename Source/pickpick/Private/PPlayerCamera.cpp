@@ -3,6 +3,8 @@
 
 #include "PPlayerCamera.h"
 #include "PPlayerResourceManager.h"
+#include "PResourceSpawner.h"
+#include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 
 APPlayerCamera::APPlayerCamera()
@@ -34,4 +36,24 @@ void APPlayerCamera::Tick(float DeltaTime)
 void APPlayerCamera::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("CollectResource", IE_Pressed, this, &APPlayerCamera::CollectResource);
+}
+
+void APPlayerCamera::CollectResource()
+{
+	FHitResult Hit;
+
+	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor
+	(
+		ECC_Visibility,
+		true,
+		Hit
+	);
+
+
+	APResourceSpawner* ResourceSpawner = Cast<APResourceSpawner>(
+		UGameplayStatics::GetActorOfClass(this, APResourceSpawner::StaticClass()));
+
+	ResourceSpawner->RouteCursorHit(Hit);
 }

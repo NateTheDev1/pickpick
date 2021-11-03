@@ -32,6 +32,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TArray<int32> BreakableBy = {0};
+
+	// Amount of times the user needs to click to collect the resource
+	UPROPERTY(EditAnywhere)
+	float ResourceHealth = 1.f;
 protected:
 	virtual void BeginPlay() override;
 public:
@@ -48,8 +52,4 @@ private:
 	bool UseParticles = false;
 
 	void HandleDestructionParticles() const;
-
-	// Amount of times the user needs to click to collect the resource
-	UPROPERTY(EditAnywhere)
-	float ResourceHealth = 1.f;
 };

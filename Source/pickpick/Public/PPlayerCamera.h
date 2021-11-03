@@ -30,4 +30,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UPPlayerResourceManager* ResourceManager;
+
+	void CollectResource();
 };

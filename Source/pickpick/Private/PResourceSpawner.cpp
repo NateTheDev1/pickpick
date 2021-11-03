@@ -34,45 +34,70 @@ void APResourceSpawner::BeginPlay()
 void APResourceSpawner::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
-	if (!Spawning)
+void APResourceSpawner::GetCursorHit(FHitResult Hit)
+{
+	if (Hit.Component->GetName().Contains("Slot"))
 	{
-		FHitResult Hit;
+		FString NewName = Hit.Component->GetName();
 
-		GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor
-		(
-			ECC_Visibility,
-			true,
-			Hit
-		);
+		NewName.RemoveFromStart("Slot");
 
-		if (Hit.GetComponent() && !HasRevealed)
+		ShowOption(FCString::Atoi(*NewName));
+
+		PickedOption = FCString::Atoi(*NewName);
+	}
+}
+
+void APResourceSpawner::GetCursorHitAndCollectResource(FHitResult Hit)
+{
+	if (HasRevealed && Hit.GetComponent() && Hit.GetActor())
+	{
+		if (Hit.GetActor()->GetClass()->IsChildOf(APResourceSpawnable::StaticClass()))
 		{
-			if (Hit.Component->GetName().Contains("Slot"))
+			APResourceSpawnable* Spawnable = Cast<APResourceSpawnable>(Hit.GetActor());
+			if (Spawnable->ResourceHealth >= 1.0f)
 			{
-				FString NewName = Hit.Component->GetName();
-
-				NewName.RemoveFromStart("Slot");
-
-				ShowOption(FCString::Atoi(*NewName));
+				Spawnable->ResourceHealth -= 1.0f;
 			}
-		}
-		if (HasRevealed && Hit.GetComponent() && Hit.GetActor())
-		{
-			if (Hit.GetActor()->GetClass()->IsChildOf(APResourceSpawnable::StaticClass()))
-			{
-				const APResourceSpawnable* Spawnable = Cast<APResourceSpawnable>(Hit.GetActor());
 
-				UE_LOG(LogTemp, Warning, TEXT("%s"), *Spawnable->Name);
+			if (Spawnable->ResourceHealth <= 0.f)
+			{
+				Spawnable->Destroy();
+				ShowUnpickedOptions();
 			}
 		}
 	}
 }
 
+void APResourceSpawner::RouteCursorHit(FHitResult Hit)
+{
+	if (!Spawning)
+	{
+		if (!HasRevealed)
+		{
+			GetCursorHit(Hit);
+		}
+		else
+		{
+			GetCursorHitAndCollectResource(Hit);
+		}
+	}
+}
+
+
 void APResourceSpawner::BeginSpawn()
 {
+	Slot1->SetWorldLocation(Slot1Spawn->GetComponentLocation());
+	Slot2->SetWorldLocation(Slot2Spawn->GetComponentLocation());
+	Slot3->SetWorldLocation(Slot3Spawn->GetComponentLocation());
+
+	PickedOption = -1;
+
 	HasRevealed = false;
 	Spawning = true;
+
 	// wait spawn delay
 	GetWorld()->GetTimerManager().SetTimer
 	(
@@ -95,20 +120,12 @@ void APResourceSpawner::Spawn()
 	const FString Slot3Randomized = GetResourceType(rand() % 7);
 	SetResourceForRandomizedSlot(Slot3Randomized, 3);
 
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Slot1Randomized);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Slot2Randomized);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *Slot3Randomized);
-
 	Spawning = false;
 }
 
 void APResourceSpawner::ShowOption(int32 Index)
 {
 	HasRevealed = true;
-
-	UE_LOG(LogTemp, Warning, TEXT("%i"), Index);
-
 
 	if (Index == 1)
 	{
@@ -130,6 +147,11 @@ void APResourceSpawner::ShowOption(int32 Index)
 		FVector NewLocation(CurrentLocation.X, CurrentLocation.Y, CurrentLocation.Z + 120.f);
 		Slot3->SetWorldLocation(NewLocation);
 	}
+}
+
+void APResourceSpawner::ShowUnpickedOptions()
+{
+	BeginSpawn();
 }
 
 FString APResourceSpawner::GetResourceType(int32 Index)
@@ -189,5 +211,21 @@ void APResourceSpawner::SpawnForSlot(TSubclassOf<APResourceSpawnable> SpawnableC
 	{
 		GetWorld()->SpawnActor<APResourceSpawnable>(SpawnableClass, Slot3Spawn->GetComponentLocation(),
 		                                            Slot3Spawn->GetComponentRotation());
+	}
+}
+
+void APResourceSpawner::ToggleBackSlots()
+{
+	if (PickedOption != 1)
+	{
+		Slot1->ToggleVisibility();
+	}
+	if (PickedOption != 2)
+	{
+		Slot2->ToggleVisibility();
+	}
+	if (PickedOption != 3)
+	{
+		Slot3->ToggleVisibility();
 	}
 }
