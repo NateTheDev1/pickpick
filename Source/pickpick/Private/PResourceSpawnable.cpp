@@ -12,6 +12,8 @@ APResourceSpawnable::APResourceSpawnable()
 	ResourceMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ResourceMesh"));
 	RootComponent = ResourceMesh;
 
+	ResourceMesh->SetCollisionProfileName("BlockAllDynamic");
+
 	ParticleSystemComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleSystemComp"));
 }
 

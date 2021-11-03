@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "PResourceSpawner.generated.h"
 
+class APResourceSpawnable;
+
 UCLASS()
 class PICKPICK_API APResourceSpawner : public AActor
 {
@@ -23,6 +25,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 private:
+	void BeginSpawn();
+
 	void Spawn();
 
 	// Values 0, 1, 2
@@ -49,4 +53,34 @@ private:
 	USceneComponent* Slot3Spawn;
 
 	static FString GetResourceType(int32 Index);
+
+	void SetResourceForRandomizedSlot(FString ResourceName, int32 Slot) const;
+	void SpawnForSlot(TSubclassOf<APResourceSpawnable> SpawnableClass, int32 Slot) const;
+
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> SilverClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> CopperClass;
+	
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> BronzeClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> IronClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> GoldClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> PlatinumClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<APResourceSpawnable> DiamondClass;
+
+	bool Spawning = false;
+	bool HasRevealed = false;
+
+	FTimerHandle SpawnDelayTimerHandle;
 };

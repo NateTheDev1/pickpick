@@ -14,10 +14,7 @@ class PICKPICK_API APResourceSpawnable : public AActor
 
 public:
 	APResourceSpawnable();
-
-protected:
-	virtual void BeginPlay() override;
-
+	
 	UPROPERTY(EditAnywhere)
 	FString Name = TEXT("ResourceDefaultName");
 
@@ -35,6 +32,8 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	TArray<int32> BreakableBy = {0};
+protected:
+	virtual void BeginPlay() override;
 public:
 	virtual void Tick(float DeltaTime) override;
 private:
